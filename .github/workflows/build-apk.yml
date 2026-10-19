@@ -24,7 +24,7 @@ jobs:
           java-version: 17
       - run: npm install
       - name: Siapkan proyek Android
-        run: ./prepare-android.sh
+        run: bash prepare-android.sh
         env:
           VERSION_CODE: ${{ github.run_number }}
           VERSION_NAME: 1.0.${{ github.run_number }}

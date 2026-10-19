@@ -16,5 +16,5 @@ Tambahkan secret repo: `KEYSTORE_BASE64` (`base64 -w0 kunci.jks`), `KEYSTORE_PAS
 
 ## Build lokal
     npm install
-    VERSION_CODE=2 ./prepare-android.sh
+    VERSION_CODE=2 bash prepare-android.sh
     cd android && ./gradlew assembleDebug
