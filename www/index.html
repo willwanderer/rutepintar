@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <title>RutePintar</title>
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="map"></div>
+
+    <div id="topbar">
+      <div id="planbar">
+        <button id="btnBack" class="icon small" aria-label="Kembali ke daftar rencana">‹</button>
+        <button id="planTitle" aria-label="Ganti nama rencana"></button>
+      </div>
+      <div class="searchrow">
+        <input id="q" type="search" placeholder="Cari alamat, tempat, atau koordinat…" autocomplete="off" enterkeyhint="search">
+        <button id="btnGps" class="icon" aria-label="Lokasi saya">◎</button>
+      </div>
+      <div id="results" hidden></div>
+    </div>
+
+    <section id="sheet">
+      <button id="handle" aria-label="Buka/tutup daftar"><span></span></button>
+      <div id="summary">Belum ada tujuan. Cari alamat atau ketuk peta.</div>
+      <div id="tripBar" data-state="plan" hidden>
+        <div id="tripInfo"></div>
+        <div class="tripBtns">
+          <button id="btnTripStart" class="amber">▶ Mulai perjalanan</button>
+          <button id="btnTripFinish" class="primary" hidden>✔ Selesaikan rencana</button>
+          <button id="btnReport" class="primary" hidden>📄 Laporan PDF</button>
+          <button id="btnTripReopen" hidden>Buka kembali</button>
+        </div>
+      </div>
+      <ol id="stops"></ol>
+      <label id="roundRow"><input type="checkbox" id="optRound" checked> Kembali ke titik awal (rute pulang-pergi)</label>
+      <div id="actions">
+        <button id="btnOptimize" class="primary">Cari rute tercepat</button>
+        <button id="btnImport">Impor</button>
+        <button id="btnExport">Ekspor</button>
+        <button id="btnNav">Navigasi</button>
+        <button id="btnShare">Bagikan</button>
+        <button id="btnReset" class="danger">Reset</button>
+      </div>
+      <p id="hint">Titik pertama = titik awal. Maksimal 100 tujuan. Ketuk ✎ pada titik untuk nama, keterangan &amp; foto.</p>
+    </section>
+  </div>
+
+  <!-- Beranda: daftar rencana -->
+  <main id="home">
+    <div class="homeInner">
+      <h1>RutePintar</h1>
+      <p class="tag">Buat rencana dulu, lalu pilih titik-titik lokasinya.</p>
+
+      <div id="homeEmpty" hidden>
+        <div class="bigicon" aria-hidden="true">🗺️</div>
+        <h2>Belum ada rencana</h2>
+        <p class="muted">Mulai dengan memberi nama rencana, misalnya “Antar paket Senin”.</p>
+        <button id="btnNewPlan" class="btn primary">＋ Buat rencana</button>
+        <button id="btnHomeImport0" class="btn">Impor</button>
+      </div>
+
+      <div id="homeList" hidden>
+        <ul id="planList"></ul>
+        <div class="homeActions">
+          <button id="btnNewPlan2" class="btn primary">＋ Rencana baru</button>
+          <button id="btnHomeImport" class="btn">Impor</button>
+          <button id="btnHomeExport" class="btn">Ekspor semua</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Nama rencana (baru / ganti nama) -->
+  <dialog id="dlgPlan">
+    <form id="planForm">
+      <h2 id="planDlgTitle">Rencana baru</h2>
+      <p class="muted" id="planDlgDesc"></p>
+      <input id="planNameInput" type="text" maxlength="60" placeholder="Nama rencana" autocomplete="off">
+      <div class="dlgActions">
+        <button type="button" id="planCancel">Batal</button>
+        <button type="submit" id="planDlgOk" class="primary">Simpan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Titik: nama, keterangan, foto -->
+  <dialog id="dlgStop">
+    <form id="stopForm">
+      <h2 id="stopTitle">Titik baru</h2>
+      <div id="stopAddr" class="muted addr"></div>
+      <label class="fld"><span>Nama titik</span>
+        <input id="stopName" type="text" maxlength="80" placeholder="mis. Toko Pak Budi" autocomplete="off">
+      </label>
+      <label class="fld"><span>Keterangan</span>
+        <textarea id="stopNote" rows="3" maxlength="1000" placeholder="Catatan: patokan, jam buka, barang yang diantar…"></textarea>
+      </label>
+      <div id="photoBox" hidden>
+        <div class="fldHead"><span>Foto</span><span id="photoCount" class="muted"></span></div>
+        <div id="visitInfo" class="muted small"></div>
+        <div id="photoGrid"></div>
+        <div id="photoBtns" class="photoBtns">
+          <button type="button" id="btnCam">📷 Kamera</button>
+          <button type="button" id="btnGallery">🖼️ Galeri</button>
+        </div>
+        <input type="file" id="fileCam" accept="image/*" capture="environment" hidden>
+        <input type="file" id="fileGallery" accept="image/*" multiple hidden>
+      </div>
+      <p id="photoLater" class="muted small">Foto bisa ditambahkan setelah titik disimpan: ketuk ✎ pada titik.</p>
+      <div class="dlgActions">
+        <button type="button" id="stopCancel">Batal</button>
+        <button type="submit" id="stopOk" class="primary">Simpan titik</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Penampil foto -->
+  <dialog id="dlgPhoto">
+    <div class="pv">
+      <img id="pvImg" alt="Foto titik">
+      <div class="pvBar">
+        <button type="button" id="pvPrev" aria-label="Sebelumnya">‹</button>
+        <span id="pvCount"></span>
+        <button type="button" id="pvNext" aria-label="Berikutnya">›</button>
+        <button type="button" id="pvClose">Tutup</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="dlgImport">
+    <form method="dialog">
+      <h2 id="importTitle">Impor banyak alamat</h2>
+      <label id="importNameRow" class="fld" hidden><span>Nama rencana</span>
+        <input id="importName" type="text" maxlength="60" placeholder="Nama rencana baru" autocomplete="off">
+      </label>
+      <p class="muted">Satu alamat per baris. Boleh berupa alamat/nama tempat atau koordinat <code>lat,lng</code>. Cadangan <code>.json</code> (dengan nama, keterangan &amp; foto) dari aplikasi ini juga bisa dimuat.</p>
+      <textarea id="importText" rows="8" placeholder="Jl. Sudirman No. 10, Makassar&#10;-5.1477, 119.4327&#10;Pantai Losari"></textarea>
+      <input type="file" id="importFile">
+      <div id="importStatus" class="muted"></div>
+      <div class="dlgActions">
+        <button value="cancel" id="importCancel">Tutup</button>
+        <button type="button" id="importGo" class="primary">Tambahkan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlgExport">
+    <form method="dialog">
+      <h2>Ekspor tujuan</h2>
+      <label class="fmt">
+        <input type="radio" name="expFmt" value="apk" checked><b>Koordinat saja (.txt)</b>
+        <small>Satu baris <code>lat, lng</code> per tujuan. Paling akurat &amp; cepat diimpor (tanpa pencarian alamat). Nama, keterangan &amp; foto tidak ikut.</small>
+      </label>
+      <label class="fmt">
+        <input type="radio" name="expFmt" value="json"><b>Cadangan lengkap (.json)</b>
+        <small>Nama rencana, nama titik, keterangan, koordinat, opsi pulang-pergi, dan (opsional) foto. Bisa dimuat kembali di aplikasi web maupun APK lewat Impor.</small>
+      </label>
+      <label id="expPhotosRow" class="chk" hidden><input type="checkbox" id="expPhotos" checked> <span id="expPhotosLabel"></span></label>
+      <label class="fmt">
+        <input type="radio" name="expFmt" value="names"><b>Alamat (.txt)</b>
+        <small>Satu alamat per baris. Bisa diimpor, tetapi dicari ulang lewat internet (±1 detik per baris) dan hasilnya bisa meleset.</small>
+      </label>
+      <label class="fmt">
+        <input type="radio" name="expFmt" value="csv"><b>Tabel (.csv)</b>
+        <small>Kolom no, nama, keterangan, alamat, lat, lng untuk Excel/Sheets. Tidak untuk impor.</small>
+      </label>
+      <textarea id="exportPreview" rows="6" readonly></textarea>
+      <div id="exportInfo" class="muted"></div>
+      <p id="exportNative" class="muted small" hidden>Di aplikasi ini hasil ekspor dibagikan sebagai teks (mis. ke WhatsApp, Drive, atau Catatan). Tempel/buka di kotak Impor untuk memuatnya kembali.</p>
+      <div class="dlgActions three">
+        <button value="cancel">Tutup</button>
+        <button type="button" id="exportCopy">Salin</button>
+        <button type="button" id="exportDownload" class="primary">Unduh</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Laporan PDF -->
+  <dialog id="dlgReport">
+    <h2>Laporan perjalanan</h2>
+    <div class="repBarWrap"><div id="repBar"></div></div>
+    <div id="repStatus" class="muted">Menyiapkan…</div>
+    <p id="repNote" class="muted small"></p>
+    <div id="repActions" class="repActions" hidden>
+      <button type="button" id="repSave" class="primary">Unduh PDF</button>
+      <button type="button" id="repOpen">Buka PDF</button>
+      <button type="button" id="repShare" hidden>Bagikan</button>
+    </div>
+    <div class="dlgActions"><button type="button" id="repClose">Tutup</button></div>
+  </dialog>
+
+  <div id="toast" hidden></div>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="solver.js"></script>
+  <script src="lib/jspdf/jspdf.umd.min.js"></script>
+  <script src="report.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
