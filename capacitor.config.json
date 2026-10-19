@@ -1,0 +1,8 @@
+{
+  "appId": "id.rutepintar.app",
+  "appName": "RutePintar",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <title>RutePintar</title>
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="map"></div>
+
+    <div id="topbar">
+      <div class="searchrow">
+        <input id="q" type="search" placeholder="Cari alamat, tempat, atau koordinat…" autocomplete="off" enterkeyhint="search">
+        <button id="btnGps" class="icon" aria-label="Lokasi saya">◎</button>
+      </div>
+      <div id="results" hidden></div>
+    </div>
+
+    <section id="sheet">
+      <button id="handle" aria-label="Buka/tutup daftar"><span></span></button>
+      <div id="summary">Belum ada tujuan. Cari alamat atau ketuk peta.</div>
+      <ol id="stops"></ol>
+      <label id="roundRow"><input type="checkbox" id="optRound" checked> Kembali ke titik awal (rute pulang-pergi)</label>
+      <div id="actions">
+        <button id="btnOptimize" class="primary">Cari rute tercepat</button>
+        <button id="btnImport">Impor</button>
+        <button id="btnNav">Navigasi</button>
+        <button id="btnShare">Bagikan</button>
+        <button id="btnReset" class="danger">Reset</button>
+      </div>
+      <p id="hint">Titik pertama = titik awal. Jumlah maksimal 100 tujuan.</p>
+    </section>
+  </div>
+
+  <dialog id="dlgImport">
+    <form method="dialog">
+      <h2>Impor banyak alamat</h2>
+      <p class="muted">Satu alamat per baris. Boleh berupa alamat/nama tempat atau koordinat <code>lat,lng</code>.</p>
+      <textarea id="importText" rows="9" placeholder="Jl. Sudirman No. 10, Makassar&#10;-5.1477, 119.4327&#10;Pantai Losari"></textarea>
+      <input type="file" id="importFile" accept=".txt,.csv,text/plain,text/csv">
+      <div id="importStatus" class="muted"></div>
+      <div class="dlgActions">
+        <button value="cancel" id="importCancel">Tutup</button>
+        <button type="button" id="importGo" class="primary">Tambahkan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" hidden></div>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="solver.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
