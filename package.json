@@ -1,0 +1,23 @@
+{
+  "name": "rutepintar",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Perencana rute multi-tujuan (ala RouteXL) sebagai aplikasi Android",
+  "scripts": {
+    "prepare-web": "node scripts/copy-leaflet.js",
+    "test": "node scripts/test-solver.js"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/app-launcher": "^6.0.0",
+    "@capacitor/browser": "^6.0.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/geolocation": "^6.0.0",
+    "@capacitor/share": "^6.0.0",
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
+  }
+}

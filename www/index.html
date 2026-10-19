@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <title>RutePintar</title>
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- Layar 1: daftar rute -->
+    <section id="screenRoutes" class="screen">
+      <header class="appbar">
+        <h1>RutePintar</h1>
+        <p>Rencanakan rute dengan banyak titik</p>
+      </header>
+      <div id="routeList"></div>
+      <p id="routesEmpty" class="muted center">Belum ada rute.<br>Ketuk "Rute baru" untuk memulai.</p>
+      <button id="btnNewRoute" class="fab">+ Rute baru</button>
+    </section>
+
+    <!-- Layar 2: isi rute -->
+    <section id="screenRoute" class="screen" hidden>
+      <div id="map"></div>
+
+      <div id="topbar">
+        <div class="titlerow">
+          <button id="btnBack" class="icon" aria-label="Kembali">←</button>
+          <button id="routeTitle" class="titlebtn" type="button">Rute</button>
+          <button id="btnGps" class="icon" aria-label="Lokasi saya">◎</button>
+        </div>
+        <input id="q" type="search" placeholder="Cari alamat, tempat, atau koordinat…" autocomplete="off" enterkeyhint="search">
+        <div id="results" hidden></div>
+      </div>
+
+      <div id="pickBanner" hidden>
+        <span>Ketuk peta untuk memilih lokasi</span>
+        <button id="pickCancel" type="button">Batal</button>
+      </div>
+
+      <section id="sheet">
+        <button id="handle" aria-label="Buka/tutup daftar"><span></span></button>
+        <div id="summary">Belum ada titik.</div>
+        <ol id="points"></ol>
+        <label id="roundRow"><input type="checkbox" id="optRound"> Kembali ke titik mulai (bila titik akhir tidak dipilih)</label>
+        <div id="actions">
+          <button id="btnOptimize" class="primary">Cari rute tercepat</button>
+          <button id="btnAdd">+ Titik</button>
+          <button id="btnNav">Navigasi</button>
+          <button id="btnImport">Impor</button>
+          <button id="btnShare">Bagikan</button>
+        </div>
+        <p id="hint">Centang titik yang ikut rute, pilih <b>Mulai</b> dan <b>Akhir</b>, lalu cari rute tercepat. Ketuk peta untuk menambah titik.</p>
+      </section>
+    </section>
+  </div>
+
+  <!-- Nama rute -->
+  <dialog id="dlgName">
+    <div class="dlgbody">
+      <h2 id="nameTitle">Rute baru</h2>
+      <div class="fld">
+        <label for="nameInput">Nama rute</label>
+        <input id="nameInput" type="text" maxlength="60" placeholder="mis. Antar paket Senin" autocomplete="off">
+      </div>
+      <div class="dlgActions">
+        <button type="button" id="nameCancel">Batal</button>
+        <button type="button" id="nameSave" class="primary">Simpan</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Titik: nama, lokasi, keterangan -->
+  <dialog id="dlgPoint">
+    <div class="dlgbody">
+      <h2 id="edTitle">Titik baru</h2>
+      <div class="fld">
+        <label for="edName">Nama titik</label>
+        <input id="edName" type="text" maxlength="80" placeholder="mis. Toko Maju Jaya" autocomplete="off">
+      </div>
+      <div class="fld">
+        <label for="edLoc">Lokasi</label>
+        <div class="locrow">
+          <input id="edLoc" type="text" placeholder="Alamat atau lat,lng" autocomplete="off">
+          <button type="button" id="edFind">Cari</button>
+        </div>
+      </div>
+      <div id="edResults" hidden></div>
+      <div id="edCoord" class="muted"></div>
+      <button type="button" id="edPick" class="linkbtn">📍 Pilih lokasi di peta</button>
+      <div class="fld">
+        <label for="edNotes">Keterangan</label>
+        <textarea id="edNotes" rows="3" placeholder="Catatan, mis. jam buka, nama penerima (opsional)"></textarea>
+      </div>
+      <div class="dlgActions">
+        <button type="button" id="edCancel">Batal</button>
+        <button type="button" id="edSave" class="primary">Simpan</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Impor -->
+  <dialog id="dlgImport">
+    <div class="dlgbody">
+      <h2>Impor banyak titik</h2>
+      <p class="muted">Satu titik per baris. Format bebas:<br>
+        <code>alamat</code> atau <code>lat,lng</code><br>
+        atau lengkap: <code>Nama | Alamat atau lat,lng | Keterangan</code></p>
+      <textarea id="importText" rows="8" placeholder="Toko A | Jl. Sudirman No. 10, Makassar | tutup jam 5&#10;-5.1477, 119.4327&#10;Pantai Losari"></textarea>
+      <input type="file" id="importFile" accept=".txt,.csv,text/plain,text/csv">
+      <div id="importStatus" class="muted"></div>
+      <div class="dlgActions">
+        <button type="button" id="importCancel">Tutup</button>
+        <button type="button" id="importGo" class="primary">Tambahkan</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" hidden></div>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="solver.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
